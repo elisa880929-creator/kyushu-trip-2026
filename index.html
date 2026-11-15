@@ -92,6 +92,82 @@
     .footer { text-align: center; padding: 35px 20px 55px; color: var(--muted); font-size: 11px; letter-spacing: .08em; }
     .footer .leaf { color: var(--rust); font-size: 20px; display: block; margin-bottom: 8px; }
     .small-print { font-size: 11px; color: #858b80; margin-top: 8px; }
+
+/* 行前須知 */
+.prep-section {
+  background: var(--white);
+  border: 1px solid rgba(67,85,65,.10);
+  border-radius: 13px;
+  padding: 24px 26px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+
+.prep-section h3 {
+  font-size: 19px;
+  margin: 0 0 15px;
+  color: var(--green-dark);
+}
+
+.prep-rules {
+  padding-left: 22px;
+  margin: 0;
+  color: #697166;
+  font-size: 13px;
+}
+
+.prep-rules li {
+  padding: 5px 0;
+}
+
+.prep-checklist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.prep-check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fffefa;
+  font-size: 13px;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.prep-check-item input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--green-dark);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.prep-check-item:has(input:checked) {
+  background: #edf0e9;
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.prep-progress {
+  font-size: 12px;
+  color: var(--rust);
+  margin-top: 13px;
+}
+
+@media (max-width: 640px) {
+  .prep-section {
+    padding: 20px 17px;
+  }
+
+  .prep-checklist {
+    grid-template-columns: 1fr;
+  }
+}    
     @media (max-width: 640px) {
       .hero { min-height: 360px; }
       .tabs { justify-content: flex-start; }
@@ -144,6 +220,41 @@
       ============================
     */
     const DAYS = [
+      
+{
+  tab: "行前須知",
+  type: "prep",
+  date: "TRAVEL CHECKLIST",
+  title: "出發前，確認好每一件小事",
+  subtitle: "KYUSHU AUTUMN TRIP · 2026",
+  rules: [
+    "請隨身保管護照、機票及重要證件，並確認護照效期符合入境規定。",
+    "搭乘 JR 前請確認指定席時間、乘車日期及 JR PASS 使用效期。",
+    "日本行車方向與台灣相反，租車時請遵守交通規則，並確認駕駛文件及租車保險。",
+    "第三天動物園行程較長，請預留交通、購票及排隊時間，並穿著舒適好走的鞋子。",
+    "日本秋冬早晚溫差較大，請依天氣準備保暖衣物及雨具。",
+    "購物、用餐及景點開放時間可能異動，出發前請再次確認官方公告。",
+    "請保管好個人財物，並準備少量日圓現金，以備部分店家或交通使用。"
+  ],
+  checklist: [
+    "護照",
+    "機票／登機資訊",
+    "JR PASS 兌換憑證",
+    "台灣駕照正本",
+    "日文駕照譯本",
+    "信用卡／日圓現金",
+    "手機及充電器",
+    "行動電源",
+    "日本網卡／eSIM",
+    "轉接插頭",
+    "保暖外套",
+    "雨傘／雨衣",
+    "個人藥品",
+    "常備用品",
+    "行李及隨身包"
+  ]
+},
+
       {
         tab: "第一天",
         date: "11/22（日）",
