@@ -92,6 +92,7 @@
     .footer { text-align: center; padding: 35px 20px 55px; color: var(--muted); font-size: 11px; letter-spacing: .08em; }
     .footer .leaf { color: var(--rust); font-size: 20px; display: block; margin-bottom: 8px; }
     .small-print { font-size: 11px; color: #858b80; margin-top: 8px; }
+    
 
 /* 行前須知 */
 .prep-section {
@@ -497,52 +498,136 @@
     const tabsEl = document.getElementById("dayTabs");
     const itineraryEl = document.getElementById("itinerary");
 
-    function render() {
-      tabsEl.innerHTML = "";
-      itineraryEl.innerHTML = "";
 
-      DAYS.forEach((day, index) => {
-        const button = document.createElement("button");
-        button.className = "tab" + (index === 0 ? " active" : "");
-        button.textContent = day.tab;
-        button.type = "button";
-        button.setAttribute("aria-selected", index === 0 ? "true" : "false");
-        button.addEventListener("click", () => selectDay(index));
-        tabsEl.appendChild(button);
+function render() {
+  tabsEl.innerHTML = "";
+  itineraryEl.innerHTML = "";
 
-        const panel = document.createElement("section");
-        panel.className = "day-panel" + (index === 0 ? " active" : "");
-        panel.id = `day-${index}`;
-        panel.innerHTML = `
-          <div class="day-heading">
-            <div>
-              <div class="day-no">${day.tab.toUpperCase()}　／　${day.date}</div>
-              <h2>${day.title}</h2>
-            </div>
-            <p>${day.subtitle}</p>
+  DAYS.forEach((day, index) => {
+    const button = document.createElement("button");
+    button.className = "tab" + (index === 0 ? " active" : "");
+    button.textContent = day.tab;
+    button.type = "button";
+    button.setAttribute("aria-selected", index === 0 ? "true" : "false");
+    button.addEventListener("click", () => selectDay(index));
+    tabsEl.appendChild(button);
+
+    const panel = document.createElement("section");
+    panel.className = "day-panel" + (index === 0 ? " active" : "");
+    panel.id = `day-${index}`;
+
+    // 行前須知專用版面
+    if (day.type === "prep") {
+      const savedChecks = JSON.parse(
+        localStorage.getItem("kyushu-prep-checklist") || "{}"
+      );
+
+      panel.innerHTML = `
+        <div class="day-heading">
+          <div>
+            <div class="day-no">${day.date}</div>
+            <h2>${day.title}</h2>
           </div>
-          ${day.note ? `<div class="day-note">✦ ${day.note}</div>` : ""}
-          <div class="timeline">
-            ${day.activities.map(activity => `
-              <article class="trip-card">
-                <img src="${activity.image}" alt="${activity.title}" loading="lazy"
-                  onerror="this.style.display='none'">
-                <div class="trip-content">
-                  <div class="trip-time">${activity.time || ""}</div>
-                  <h3>${activity.title}</h3>
-                  <p>${activity.description}</p>
-                  <div class="chips">${(activity.tags || []).map(tag => `<span class="chip">${tag}</span>`).join("")}</div>
-                  <div class="card-links">
-                    ${(activity.links || []).map(link => `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label} ↗</a>`).join("")}
-                  </div>
-                </div>
-              </article>
+          <p>${day.subtitle}</p>
+        </div>
+
+        <div class="prep-section">
+          <h3>✦ 行前守則</h3>
+          <ol class="prep-rules">
+            ${day.rules.map(rule => `<li>${rule}</li>`).join("")}
+          </ol>
+        </div>
+
+        <div class="prep-section">
+          <h3>✦ 攜帶物品確認</h3>
+          <div class="prep-checklist">
+            ${day.checklist.map((item, i) => `
+              <label class="prep-check-item">
+                <input
+                  type="checkbox"
+                  data-check-index="${i}"
+                  ${savedChecks[i] ? "checked" : ""}
+                >
+                <span>${item}</span>
+              </label>
             `).join("")}
           </div>
-        `;
-        itineraryEl.appendChild(panel);
+          <div class="prep-progress" id="prepProgress"></div>
+        </div>
+      `;
+
+      itineraryEl.appendChild(panel);
+
+      // 儲存勾選狀態
+      const checkboxes = panel.querySelectorAll(
+        'input[type="checkbox"]'
+      );
+
+      function updateProgress() {
+        const checkedCount = [...checkboxes].filter(
+          checkbox => checkbox.checked
+        ).length;
+
+        panel.querySelector("#prepProgress").textContent =
+          `已完成 ${checkedCount} / ${checkboxes.length} 項準備`;
+      }
+
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener("change", () => {
+          const currentChecks = {};
+
+          checkboxes.forEach(item => {
+            currentChecks[item.dataset.checkIndex] = item.checked;
+          });
+
+          localStorage.setItem(
+            "kyushu-prep-checklist",
+            JSON.stringify(currentChecks)
+          );
+
+          updateProgress();
+        });
       });
+
+      updateProgress();
+
+    } else {
+      // 一般每日行程版面
+      panel.innerHTML = `
+        <div class="day-heading">
+          <div>
+            <div class="day-no">${day.tab.toUpperCase()}　／　${day.date}</div>
+            <h2>${day.title}</h2>
+          </div>
+          <p>${day.subtitle}</p>
+        </div>
+
+        ${day.note ? `<div class="day-note">✦ ${day.note}</div>` : ""}
+
+        <div class="timeline">
+          ${day.activities.map(activity => `
+            <article class="trip-card">
+              <img src="${activity.image}" alt="${activity.title}" loading="lazy"
+                onerror="this.style.display='none'">
+              <div class="trip-content">
+                <div class="trip-time">${activity.time || ""}</div>
+                <h3>${activity.title}</h3>
+                <p>${activity.description}</p>
+                <div class="chips">
+                  ${(activity.tags || []).map(tag => `<span class="chip">${tag}</span>`).join("")}
+                </div>
+                <div class="card-links">
+                  ${(activity.links || []).map(link => `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label} ↗</a>`).join("")}
+                </div>
+              </div>
+            </article>
+          `).join("")}
+        </div>
+      `;
+      itineraryEl.appendChild(panel);
     }
+  });
+}
 
     function selectDay(index) {
       document.querySelectorAll(".tab").forEach((tab, i) => {
